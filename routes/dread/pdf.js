@@ -46,7 +46,7 @@ module.exports = {
 				id    : null,
 				start : null,
 				end   : null,
-				update: today,
+				update: Number(now),
 				guess : null,
 				test  : [{
 					status: null,
@@ -82,8 +82,8 @@ module.exports = {
 		});
 		return list;
 	}),
-	update: co.wrap(function* (_old, _new) {
-		const today = moment().format('YYYY-MM-DD');
+	update: co.wrap(function* (_old, _new, now) {
+		const today = moment(now).format('YYYY-MM-DD');
 
 		// [1] 既に情報が完結している場合終了
 		if (_old.end) {
@@ -128,7 +128,7 @@ module.exports = {
 			rtn.end = today;
 		}
 		// [6] 更新日時を記録
-		rtn.update = moment();
+		rtn.update = Number(now);
 
 		return rtn;
 	}),

@@ -13,8 +13,7 @@ const dotenv    = require('dotenv');
 dotenv.load();
 const node_env  = process.env.NODE_ENV;
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
+router.use(function(req, res, next) {
 	co(function* () {
 		yield db.init();
 		let data = null;
@@ -27,13 +26,40 @@ router.get('/', function(req, res, next) {
 			title = '型式試験の実施状況（初期設定）';
 		}
 		yield db.fin();
+
+		req.html = {};
+		req.html.title = title;
+		req.html.update= moment(data[0][0].update).format('YYYY年MM月DD日 HH時mm分');
+		req.html.list  = data[1];
+		next();
+	})
+	.catch(console.error);
+});
+
+/* GET home page. */
+router.get('/:id(\\d{6})/', function(req, res, next) {
+	co(function* () {
+		yield db.init();
+		const data = yield db.findOne(req.params.id);
+		yield db.fin();
+		console.log(data);
+
 		res.render('index', {
-			title: title,
+			title : req.html.title,
 			update: moment(data[0][0].update).format('YYYY年MM月DD日 HH時mm分'),
-			list: data[1],
+			list  : data[1],
 		});
 	})
 	.catch(console.error);
+});
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+	res.render('index', {
+		title : req.html.title,
+		update: req.html.update,
+		list  : req.html.list,
+	});
 });
 
 router.get('/check', function(req, res, next) {

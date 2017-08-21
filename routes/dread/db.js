@@ -42,11 +42,33 @@ module.exports = {
 	insert: co.wrap(function* (doc) {
 		yield _conn.collection(mongo_working).insertOne(doc);
 	}),
+	/*
+	 * 更新確認用データの存在チェック
+	 * true : 更新する
+	 * false: 初期設定する
+	 */
+	isUpdate: co.wrap(function* () {
+		const flagData = yield _conn.collection(mongo_working).find({ 'id':0 }).toArray();
+		if(flagData[0]) {
+			// データ有
+			return true;
+		}
+		// データ無
+		return false;
+	}),
 	// listing data
 	list: co.wrap(function* () {
 		return yield[
 			_conn.collection(mongo_working).find({ 'id':0 }).toArray(),
-			_conn.collection(mongo_working).find({ 'id':{$gt:0} }).toArray(),
+			_conn.collection(mongo_working).find({ 'id':{'$gt':0} }).toArray(),
+		];
+	}),
+
+	// get one data
+	findOne: co.wrap(function* (_id) {
+		return yield[
+			_conn.collection(mongo_working).find({ 'id':0 }).toArray(),
+			_conn.collection(mongo_working).find({ 'id':Number(_id) }).toArray(),
 		];
 	}),
 
@@ -67,24 +89,10 @@ module.exports = {
 
 		return yield[
 			_conn.collection(mongo_working).find({ 'id':0 }).toArray(),
-			_conn.collection(mongo_working).find({ 'id':{$gt:0} }).toArray(),
+			_conn.collection(mongo_working).find({ 'id':{'$gt':0} }).toArray(),
 		];
 	}),
 
-	/*
-	 * 更新確認用データの存在チェック
-	 * true : 更新する
-	 * false: 初期設定する
-	 */
-	isUpdate: co.wrap(function* () {
-		const flagData = yield _conn.collection(mongo_working).find({ 'id':0 }).toArray();
-		if(flagData[0]) {
-			// データ有
-			return true;
-		}
-		// データ無
-		return false;
-	}),
 	/*
 	 * 30分(development環境では1秒)間隔でPDFデータを取得し、データベースを更新する
 	 */
@@ -95,7 +103,7 @@ module.exports = {
 		const flagData = yield _conn.collection(mongo_working).find({ 'id':0 }).toArray();
 
 		//規定更新時間経過チェック
-		if (now - moment(flagData[0].update) > diff) {
+		if (Number(now) - Number(moment(flagData[0].update)) > diff) {
 			//データ更新
 			const pdfData = yield pdf.get(now);
 			//pdfデータがDBに存在する場合は更新し、存在しない場合は挿入する
@@ -103,7 +111,7 @@ module.exports = {
 			for (let item of pdfData) {
 				data = yield _conn.collection(mongo_working).find({ 'id':item.id }).toArray();
 				if (data[0]) {
-					data = yield pdf.update(data[0], item);
+					data = yield pdf.update(data[0], item, now);
 				} else {
 					data = item;
 				}
@@ -119,7 +127,7 @@ module.exports = {
 					{upsert:true});
 			//今回更新されなかったデータを削除
 			const unupdated = yield _conn.collection(mongo_working).find({ 'update': {'$ne':Number(now)} }).toArray();
-			if (unupdated) {
+			if (unupdated.length > 0) {
 				const date = unupdated[0].update;
 				yield _conn.collection(mongo_working).remove({ 'update':date });
 			}
@@ -127,7 +135,7 @@ module.exports = {
 
 		return yield[
 			flagData,
-			_conn.collection(mongo_working).find({ 'id':{$gt:0} }).toArray(),
+			_conn.collection(mongo_working).find({ 'id':{'$gt':0} }).toArray(),
 		];
 	}),
 };
