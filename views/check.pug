@@ -1,0 +1,20 @@
+extends layout
+
+block content
+  h1= 'メンテナンスモード（データチェック）'
+
+  div(class='row')
+    div(class='col-lg-6')
+      div(class='well bs-component')
+        form(class='form-horizontal', method='POST')
+          fieldset
+            legend='チェックフォーム'
+            div(class='form-group')
+              label(for='checkData', class='col-lg-2 control-label')= 'チェック用JSON入力フォーム'
+              textarea(class='form-control', rows=3, id='checkData', name='checkData')= (data?data:'')
+              //span(class='help-block')= (error?'JSON形式にエラーがあります（'+error+'）':'')
+              span(class='help-block')= error
+            div(class='form-group')
+              div(class='col-lg-10 col-lg-offset-2')
+                button(type='submit', class='btn btn-primary')= 'CHECK!'
+

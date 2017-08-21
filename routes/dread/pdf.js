@@ -9,9 +9,8 @@ const request   = thunkify(require('request'));
 pdf2table._parse= thunkify(pdf2table.parse);
 
 module.exports = {
-	get: co.wrap(function* () {
-
-		const today = moment().format('YYYY-MM-DD');
+	get: co.wrap(function* (now) {
+		const today = moment(now).format('YYYY-MM-DD');
 
 		let response;
 		/*
@@ -82,5 +81,55 @@ module.exports = {
 			}
 		});
 		return list;
-	})
+	}),
+	update: co.wrap(function* (_old, _new) {
+		const today = moment().format('YYYY-MM-DD');
+
+		// [1] 既に情報が完結している場合終了
+		if (_old.end) {
+			return _old;
+		}
+
+		let rtn = _new;
+		let statuses = 0;
+
+		// [2] 旧情報を新情報へコピー
+		rtn.start = _old.start;
+		rtn.end = _old.end;
+		rtn.guess = _old.guess;
+
+		for (let i = 0; i < 3; i++) {
+			// [3] 旧情報を新情報へコピー
+			rtn.test[i].start = _old.test[i].start;
+			rtn.test[i].end = _old.test[i].end;
+
+			// [4] status 更新に伴う日時を記録
+			if (!rtn.test[i].end) {
+				switch(_new.test[i].status - _old.test[i].status) {
+					case 0: //変化なし
+						break;
+					case 1: //waiting -> working
+						rtn.test[i].start = today;
+						break;
+					case 3: //working -> finished
+						rtn.test[i].end = today;
+						break;
+					default://負数 or waiting -> finished
+						throw new Error('[progress] (pdf.update) changed status from ' +
+								_old.test[i].status + ' to ' + _new.test[i].status);
+						break;
+				}
+			}
+			statuses = statuses : rtn.test[i].status;
+		}
+
+		// [5] 今回で終了なら日時を記録
+		if (!rtn.end && statuses == 9) {
+			rtn.end = today;
+		}
+		// [6] 更新日時を記録
+		rtn.update = moment();
+
+		return rtn;
+	}),
 }
