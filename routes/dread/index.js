@@ -18,13 +18,17 @@ router.get('/', function(req, res, next) {
 	co(function* () {
 		yield db.init();
 		let data = null;
+		let title = null;
 		if(yield db.isUpdate()) {
-			data = db.update();
+			data = yield db.update();
+			title = '型式試験の実施状況（更新）';
 		} else {
-			data = db.setup();
+			data = yield db.setup();
+			title = '型式試験の実施状況（初期設定）';
 		}
 		yield db.fin();
 		res.render('index', {
+			title: title,
 			update: moment(data[0][0].update).format('YYYY年MM月DD日 HH時mm分'),
 			list: data[1],
 		});

@@ -100,10 +100,10 @@ module.exports = {
 			const pdfData = yield pdf.get(now);
 			//pdfデータがDBに存在する場合は更新し、存在しない場合は挿入する
 			let data = null;
-			for (item in pdfData) {
-				data = _conn.collection(mongo_working).findOne({ 'id':item.id }).toArray();
-				if (data) {
-					data = yield pdf.update(data, item);
+			for (let item of pdfData) {
+				data = yield _conn.collection(mongo_working).find({ 'id':item.id }).toArray();
+				if (data[0]) {
+					data = yield pdf.update(data[0], item);
 				} else {
 					data = item;
 				}
@@ -118,10 +118,10 @@ module.exports = {
 					{$set: {update: Number(now)} },
 					{upsert:true});
 			//今回更新されなかったデータを削除
-			const unupdated = yield _conn.collection(mongo_working).find({ 'update': {$not:Number(now)} }).toArray();
+			const unupdated = yield _conn.collection(mongo_working).find({ 'update': {'$ne':Number(now)} }).toArray();
 			if (unupdated) {
 				const date = unupdated[0].update;
-				yield _conn.collection(mongo_working).remove({  });
+				yield _conn.collection(mongo_working).remove({ 'update':date });
 			}
 		}
 
