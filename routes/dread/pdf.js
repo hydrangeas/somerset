@@ -120,7 +120,7 @@ module.exports = {
 						break;
 				}
 			}
-			statuses = statuses : rtn.test[i].status;
+			statuses = statuses + rtn.test[i].status;
 		}
 
 		// [5] 今回で終了なら日時を記録
