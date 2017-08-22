@@ -44,7 +44,7 @@ module.exports = {
 		table[0].forEach(function(e, i, a) {
 			let data = {
 				id    : null,
-				start : null,
+				start : today,
 				end   : null,
 				update: Number(now),
 				guess : null,
@@ -66,10 +66,11 @@ module.exports = {
 				data.test[0].status = getStatus(e[1]);
 				data.test[1].status = getStatus(e[2]);
 
-				// 性能試験が空白の場合から。
+				// 性能試験が空白の場合
 				data.test[2].status = 0;
 				data.guess = e[3];
 				if (e.length == 5) {
+					// 既に性能試験が開始している場合
 					data.test[2].status = getStatus(e[3]);
 					data.guess = e[4];
 				}
