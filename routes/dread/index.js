@@ -37,29 +37,28 @@ router.use(function(req, res, next) {
 });
 
 /* GET home page. */
-router.get('/:id(\\d{6})/', function(req, res, next) {
-	co(function* () {
-		yield db.init();
-		const data = yield db.findOne(req.params.id);
-		yield db.fin();
-		console.log(data);
+router.get('/', function(req, res, next) {
+	if (req.query.format &&
+			'json' === req.query.format.toLowerCase()) {
+		//全件
+		if (!req.query.id) {
+			res.header('Content-Type', 'application/json; charset=utf-8');
+			res.json({ list:req.html.list });
+		} else {
 
+			//複数件
+			let jsonData = [];
+			//for (let item of ) {
+			//}
+		}
+	} else {
 		res.render('index', {
 			title : req.html.title,
-			update: moment(data[0][0].update).format('YYYY年MM月DD日 HH時mm分'),
-			list  : data[1],
+			update: req.html.update,
+			list  : req.html.list,
+			id    : (req.query.id?req.query.id.split(','):[]),
 		});
-	})
-	.catch(console.error);
-});
-
-/* GET home page. */
-router.get('/', function(req, res, next) {
-	res.render('index', {
-		title : req.html.title,
-		update: req.html.update,
-		list  : req.html.list,
-	});
+	}
 });
 
 router.get('/check', function(req, res, next) {
