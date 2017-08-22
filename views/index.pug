@@ -1,25 +1,30 @@
 extends layout
 
 block content
-  h1= '型式試験の実施状況'
-  p= '更新日時:' + update
 
-  table(class='table table-striped table-hover')
-    thead
-      tr
-        th 管理番号
-        th 設計書等審査
-        th 対比照合審査
-        th 遊技機の試験
-        th 試験終了予定
-    tbody
-      each item in list
-        tr
-          - var _id = '000000' + String(item.id);
-          td= _id.substring(_id.length - 6)
-          td= (item.test[0].status == 0?'':(item.test[0].status == 1?'試験中':'試験終了'))
-          td= (item.test[1].status == 0?'':(item.test[1].status == 1?'試験中':'試験終了'))
-          td= (item.test[2].status == 0?'':(item.test[2].status == 1?'試験中':'試験終了'))
-          td= item.guess
+  div
+    .container
+      .page-header
+        .row
+          .col-lg-12
+            h1= '型式試験の実施状況'
+            p= '更新日時:' + update
+      table.table.table-striped.table-hover
+        thead
+          tr
+            th 管理番号
+            th 設計書等審査
+            th 対比照合審査
+            th 遊技機の試験
+            th 試験終了予定
+        tbody
+          each item in list
+            tr
+              - var _id = '000000' + String(item.id);
+              td= _id.substring(_id.length - 6)
+              td= (item.test[0].status == 0?'':(item.test[0].status == 1?'試験中':'試験終了'))
+              td= (item.test[1].status == 0?'':(item.test[1].status == 1?'試験中':'試験終了'))
+              td= (item.test[2].status == 0?'':(item.test[2].status == 1?'試験中':'試験終了'))
+              td= item.guess
 
 
