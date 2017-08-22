@@ -21,10 +21,27 @@ block content
           each item in list
             tr
               - var _id = '000000' + String(item.id);
-              td= _id.substring(_id.length - 6)
-              td= (item.test[0].status == 0?'':(item.test[0].status == 1?'試験中':'試験終了'))
-              td= (item.test[1].status == 0?'':(item.test[1].status == 1?'試験中':'試験終了'))
-              td= (item.test[2].status == 0?'':(item.test[2].status == 1?'試験中':'試験終了'))
-              td= item.guess
-
+              - _id = _id.substring(_id.length - 6)
+              - if (id.length == 0 || (id.length > 0 && id.indexOf(_id) >= 0))
+                td=  _id
+                td= (item.test[0].status == 0?'':(item.test[0].status == 1?'試験中':'試験終了'))
+                td= (item.test[1].status == 0?'':(item.test[1].status == 1?'試験中':'試験終了'))
+                td= (item.test[2].status == 0?'':(item.test[2].status == 1?'試験中':'試験終了'))
+                td= item.guess
+      .page-header
+        .row
+          .col-lg-12
+            h2= '利用方法'
+            pre 
+              |URL例
+              |1 /dread/                              (HTML形式,全件表示)
+              |2 /dread/?id=012345,678901             (HTML形式,一部表示) ..カンマ区切り、6桁の数値で指定
+              |3 /dread/?format=json                  (JSON形式,全件表示)
+              |4 /dread/?id=012345,678901&format=json (JSON形式,一部表示) ..カンマ区切り、6桁の数値で指定
+          .col-lg-12
+            h2= '関連リンク'
+            p 
+              ul
+                li
+                  a(href='http://www.hotsukyo.or.jp/pdf/weekly.pdf',target='_blank') 型式試験の実施状況
 
