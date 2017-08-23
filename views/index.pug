@@ -19,10 +19,10 @@ block content
             th 試験終了予定
         tbody
           each item in list
-            tr
-              - var _id = '000000' + String(item.id);
-              - _id = _id.substring(_id.length - 6)
-              - if (id.length == 0 || (id.length > 0 && id.indexOf(_id) >= 0))
+            - var _id = '000000' + String(item.id);
+            - _id = _id.substring(_id.length - 6)
+            - if (id.length == 0 || (id.length > 0 && id.indexOf(_id) >= 0))
+              tr
                 td=  _id
                 td= (item.test[0].status == 0?'':(item.test[0].status == 1?'試験中':'試験終了'))
                 td= (item.test[1].status == 0?'':(item.test[1].status == 1?'試験中':'試験終了'))
