@@ -72,24 +72,66 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/check', function(req, res, next) {
-	if ('production' === node_env) {
-		res.redirect(302, './index');
-		return;
-	}
 	res.render('check', {});
 });
 router.post('/check', function(req, res, next) {
-	if ('production' === node_env) {
-		res.redirect(302, './index');
-		return;
-	}
+	let list = req.html.list;
 	let data = {};
+	let ret = [];
 	try {
 		data = JSON.parse(req.body.checkData);
+		data = (data.list?data.list:[]);
+
+		while(data.length > 0) {
+			let chkItem = data.shift();
+			if ((chkItem.id && chkItem.id == 0) ||!chkItem.id || !chkItem.guess ||
+					!chkItem.test || chkItem.test.length != 3) {
+				// チェック用データの形式が正しくない（廃棄）
+				console.error('Error format:', JSON.stringify(chkItem, null, 2));
+				continue;
+			}
+
+			for (let i = 0; i < list.length; i++) {
+				let dbItem = list[i];
+
+				if (chkItem.id == dbItem.id) {
+					// チェック対象がDBに存在する
+					dbItem = (list.splice(j, 1))[0];
+					if (chkItem.guess == dbItem.guess &&
+							chkItem.test[0].status == dbItem.test[0] &&
+							chkItem.test[1].status == dbItem.test[1] &&
+							chkItem.test[2].status == dbItem.test[2]) {
+						// 一致（無色）
+						dbItem.ckeck = 1;
+						chkItem.ckeck = 1;
+					} else {
+						// 不一致（赤）
+						dbItem.ckeck = 2;
+						chkItem.ckeck = 2;
+					}
+					ret.push(dbItem);
+					break;
+				}
+
+				//DBには存在しなかった（緑:DBに存在せず、チェックデータに存在）
+				if (!dbItem.check) {
+					chkItem.check = 3;
+					ret.push(chkItem);
+				}
+			}
+		}
+
+		// listに残ったデータ（青:DBに存在、チェックデータに存在せず）
+		while(list.length > 0) {
+			let dbItem = list.shift();
+			dbItem.check = 4;
+			ret.push(dbItem);
+		}
+
+		res.render('checkresult', {title:'チェック結果', list:ret});
 	} catch (err) {
 		res.render('check', {data:req.body.checkData, error:err});
 	}
-	res.render('check', {data:req.body.checkData});
 });
 
 module.exports = router;
