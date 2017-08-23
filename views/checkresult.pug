@@ -1,0 +1,37 @@
+extends layout
+
+block content
+
+  div
+    .container
+      .page-header
+        .row
+          .col-lg-12
+            h1= '型式試験の実施状況'
+      table.table.table-striped.table-hover
+        thead
+          tr
+            th 管理番号
+            th 設計書等審査
+            th 対比照合審査
+            th 遊技機の試験
+            th 試験終了予定
+        tbody
+          each item in list
+            - var _id = '000000' + String(item.id);
+            - _id = _id.substring(_id.length - 6);
+            - var _class = item.check==2?'danger':(item.check==3?'success':(item.check==4?'info':''));
+              tr(class=_class)
+                td=  _id
+                td= (item.test[0].status == 0?'':(item.test[0].status == 1?'試験中':'試験終了'))
+                td= (item.test[1].status == 0?'':(item.test[1].status == 1?'試験中':'試験終了'))
+                td= (item.test[2].status == 0?'':(item.test[2].status == 1?'試験中':'試験終了'))
+                td= item.guess
+        .row
+          .col-lg-12
+            h2= '表の見方'
+            pre
+            | 無色 .. DBとチェックデータは一致しています
+            | 赤色 .. DBとチェックデータは一致していません
+            | 緑色 .. DBのみ存在します
+            | 青色 .. チェックデータのみ存在します
