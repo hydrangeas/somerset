@@ -38,25 +38,35 @@ router.use(function(req, res, next) {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+	const query_id = (req.query.id?req.query.id.split(','):[]);
+
 	if (req.query.format &&
 			'json' === req.query.format.toLowerCase()) {
-		//全件
+		res.header('Content-Type', 'application/json; charset=utf-8');
+		let jsonData = [];
 		if (!req.query.id) {
-			res.header('Content-Type', 'application/json; charset=utf-8');
-			res.json({ list:req.html.list });
+			//全件
+			jsonData.push(req.html.list);
 		} else {
 
 			//複数件
-			let jsonData = [];
-			//for (let item of ) {
-			//}
+			if (query_id.length > 0) {
+				for (let item of req.html.list) {
+					let _id = '000000' + String(item.id);
+					_id = _id.substring(_id.length - 6);
+					if (query_id.indexOf(_id) >= 0) {
+						jsonData.push(item);
+					}
+				}
+			}
 		}
+		res.json({ list:jsonData });
 	} else {
 		res.render('index', {
 			title : req.html.title,
 			update: req.html.update,
 			list  : req.html.list,
-			id    : (req.query.id?req.query.id.split(','):[]),
+			id    : query_id,
 		});
 	}
 });
