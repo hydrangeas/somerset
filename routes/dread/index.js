@@ -97,7 +97,7 @@ router.post('/check', function(req, res, next) {
 				if (chkItem.id == dbItem.id) {
 					// チェック対象がDBに存在する
 					// ->DBから削除
-					list.splice(j, 1);
+					list.splice(i, 1);
 					if (chkItem.guess == dbItem.guess &&
 							chkItem.test[0].status == dbItem.test[0].status &&
 							chkItem.test[1].status == dbItem.test[1].status &&
