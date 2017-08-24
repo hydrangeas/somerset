@@ -96,28 +96,28 @@ router.post('/check', function(req, res, next) {
 
 				if (chkItem.id == dbItem.id) {
 					// チェック対象がDBに存在する
-					dbItem = (list.splice(j, 1))[0];
+					// ->DBから削除
+					list.splice(j, 1);
 					if (chkItem.guess == dbItem.guess &&
-							chkItem.test[0].status == dbItem.test[0] &&
-							chkItem.test[1].status == dbItem.test[1] &&
-							chkItem.test[2].status == dbItem.test[2]) {
+							chkItem.test[0].status == dbItem.test[0].status &&
+							chkItem.test[1].status == dbItem.test[1].status &&
+							chkItem.test[2].status == dbItem.test[2].status) {
 						// 一致（無色）
-						dbItem.ckeck = 1;
-						chkItem.ckeck = 1;
+						dbItem.check = 1;
+						chkItem.check = 1;
 					} else {
 						// 不一致（赤）
-						dbItem.ckeck = 2;
-						chkItem.ckeck = 2;
+						dbItem.check = 2;
+						chkItem.check = 2;
 					}
 					ret.push(dbItem);
 					break;
 				}
-
-				//DBには存在しなかった（緑:DBに存在せず、チェックデータに存在）
-				if (!dbItem.check) {
-					chkItem.check = 3;
-					ret.push(chkItem);
-				}
+			}
+			//DBには存在しなかった（緑:DBに存在せず、チェックデータに存在）
+			if (!dbItem.check) {
+				chkItem.check = 3;
+				ret.push(chkItem);
 			}
 		}
 
