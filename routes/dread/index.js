@@ -115,7 +115,7 @@ router.post('/check', function(req, res, next) {
 				}
 			}
 			//DBには存在しなかった（緑:DBに存在せず、チェックデータに存在）
-			if (!dbItem.check) {
+			if (!chkItem.check) {
 				chkItem.check = 3;
 				ret.push(chkItem);
 			}
