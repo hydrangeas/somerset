@@ -13,6 +13,26 @@ const dotenv    = require('dotenv');
 dotenv.load();
 const node_env  = process.env.NODE_ENV;
 
+router.get('/setup', function(req, res, next) {
+	if ('production' == process.env.NODE_ENV) {
+		res.redirect(302, './');
+	} else {
+		co(function* () {
+			yield db.init();
+			const data = yield db.setup();
+			yield db.fin();
+
+			res.render('index', {
+				title : '型式試験の実施状況（初期設定）',
+				update: moment(data[0][0].update).format('YYYY年MM月DD日 HH時mm分'),
+				list  : data[1],
+				id    : [],
+			});
+		})
+		.catch(console.error);
+	}
+});
+
 router.use(function(req, res, next) {
 	co(function* () {
 		yield db.init();
